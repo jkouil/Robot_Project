@@ -1,0 +1,137 @@
+env:
+  model_path: models/pupper_like_preview_terrain.xml
+  control_dt: 0.02
+  episode_length_s: 8.0
+  action_scale: 0.27
+  reset_noise_scale: 0.0
+  command_min: 0.10
+  command_max: 0.12
+  command_yaw_min: 0.0
+  command_yaw_max: 0.0
+  healthy_z_min: 0.09
+  healthy_torso_up_min: 0.45
+  corridor_half_width: null
+  use_privileged_terrain: true
+  terrain_obs_mode: stable_world_patch
+  terrain_obs_height_reference: center_height
+  terrain_patch_rows: 4
+  terrain_patch_cols: 5
+  terrain_patch_dx: 0.10
+  terrain_patch_dy: 0.10
+  terrain_patch_center_offset_x: 0.22
+  terrain_patch_center_offset_y: 0.0
+  scandot_layout: custom
+  observation_mode: teacher_dict
+  include_privileged_obs: true
+  observation_noise_std: 0.0
+  terrain_generation:
+    precision_stone_platform_center_x: 0.38
+    precision_stone_platform_half_length: 0.26
+    precision_stone_platform_half_width: 0.24
+    precision_stone_platform_height: 0.10
+    precision_stone_spawn_x: 0.30
+    precision_stone_spawn_y: 0.0
+    precision_stone_spawn_clearance_z: 0.22
+    precision_stone_first_center_x: 0.76
+    precision_stone_stride_easy: 0.224
+    precision_stone_stride_scale: 0.0
+    precision_stone_radius_easy: 0.090
+    precision_stone_radius_scale: 0.0
+    precision_stone_height_easy: 0.10
+    precision_stone_height_scale: 0.0
+    precision_stone_pair_gap_easy: 0.112
+    precision_stone_pair_gap_scale: 0.0
+    precision_stone_pair_rows: 9
+    precision_stone_row_lateral_bias: [0.0, 0.025, -0.025, 0.015, -0.015, 0.02, -0.02, 0.01, 0.03, -0.03]
+    precision_stone_row_x_jitter_easy: 0.015
+    precision_stone_row_x_jitter_scale: 0.0
+    precision_stone_y_jitter_easy: 0.009
+    precision_stone_y_jitter_scale: 0.0
+  privileged_randomization:
+    body_mass_range: [1.0, 1.0]
+    friction_range: [1.0, 1.0]
+    joint_damping_range: [1.0, 1.0]
+  curriculum:
+    enabled: true
+    initial_level: 0
+    min_level: 0
+    max_level: 0
+    window: 1
+    promotion_threshold: 1.0
+    demotion_threshold: 0.0
+    success_x_fraction: 0.6666667
+    terrain_types: [precision_stepping_stones]
+  seed: 11
+  reward_weights:
+    survival: 1.0
+    command_tracking: 7.0
+    absolute_work: 0.0001
+    foot_jerk: 0.00005
+    foot_drag: 0.00005
+    collision: 0.35
+    contact_force_threshold: 1.0
+    collision_force_threshold: 1.0
+    fall: 2.0
+
+policy:
+  teacher_encoder_variant: paper
+  include_privileged: false
+  hidden_sizes: [256, 256]
+  proprio_hidden_dim: 128
+  scandot_hidden_dim: 128
+  command_hidden_dim: 32
+  privileged_hidden_dim: 32
+  fused_dim: 256
+  lstm_hidden_size: 256
+  n_lstm_layers: 1
+  shared_lstm: false
+  enable_critic_lstm: true
+  init_log_std: -1.0
+  min_log_std: -2.0
+  max_log_std: -0.5
+
+train:
+  seed: 11
+  device: cpu
+  recurrent: true
+  recurrent_cell: gru
+  truncated_bptt_steps: 24
+  num_envs: 1
+  learning_rate: 0.0001
+  total_updates: 1
+  total_timesteps: 24
+  rollout_steps: 24
+  ppo_epochs: 1
+  minibatch_size: 24
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_coef: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.003
+  max_grad_norm: 0.5
+  target_kl: 0.025
+  normalize_obs_keys: [proprio, scandots, command, privileged]
+  checkpoint_interval: 1
+  output_dir: artifacts/precision_stepping_stones_smoke
+
+eval:
+  egl_device_id: 0
+  eval_interval_timesteps: 24
+  eval_episodes: 1
+  record_best_video: false
+  record_recent_video: false
+  record_curriculum_showcase: false
+  record_pretrain_scene_showcase: false
+  video_overlay_metrics: false
+  highlight_preview_terrain: false
+  render_scandots: false
+  render_stair_edges: false
+  showcase_terrain_type: precision_stepping_stones
+  showcase_max_level: 0
+  video_fps: 12
+  video_width: 640
+  video_height: 384
+  video_camera: terrain_overview
+
+wandb:
+  enabled: false

@@ -1,0 +1,74 @@
+teacher:
+  checkpoint: artifacts/teacher_walk_preview_gru_random_slopes_shifted_no_corridor_iterative_finetune/v11/best_teacher.zip
+  vecnormalize: artifacts/teacher_walk_preview_gru_random_slopes_shifted_no_corridor_iterative_finetune/v11/best_teacher_vecnormalize.pkl
+  config: configs/teacher_walk_preview_gru_random_slopes_shifted_no_corridor.yaml
+
+student:
+  architecture: residual_bilinear
+  init_from_paper_like: artifacts/student_paper_like_bc/best_student.pt
+  depth_feature_dim: 128
+  gru_hidden_size: 256
+  gru_layers: 1
+  device: cuda
+  imu_variant: imu_clean
+  imu_dim: 6
+  imu_hidden_dim: 64
+  bilinear_rank: 64
+  residual_beta_init: 0.01
+  depth:
+    enabled: true
+    height: 58
+    width: 87
+    near: 0.05
+    far: 2.0
+    normalize: true
+    camera: front_camera
+
+bc:
+  dataset_path: artifacts/student_paper_like/bc_dataset.pt
+  save_dir: artifacts/student_residual_bilinear_imu_clean_bc
+  val_fraction: 0.1
+
+bilinear_bc:
+  init_checkpoint: artifacts/student_paper_like_bc/best_student.pt
+  save_dir: artifacts/student_residual_bilinear_imu_clean_bc
+  dataset_path: artifacts/student_paper_like/bc_dataset.pt
+  stage1_epochs: 5
+  stage1_learning_rate: 0.0003
+  stage2_epochs: 10
+  stage2_learning_rate: 0.00005
+  batch_size: 64
+  bptt_len: 24
+  weight_decay: 0.0
+  val_fraction: 0.1
+  eval_during_training: true
+  eval_every_epochs: 1
+  eval_episodes: 10
+  eval_tasks:
+    - random_slope_shift
+    - random_slope_shift_hard_heldout
+
+dagger:
+  enabled: false
+
+eval:
+  episodes: 100
+  seed: 12345
+  save_dir: artifacts/student_residual_bilinear_imu_clean_eval
+  old_config: configs/teacher_walk_preview_gru_random_slopes_no_corridor_finetune.yaml
+  shift_config: configs/teacher_walk_preview_gru_random_slopes_shifted_no_corridor.yaml
+  hard_heldout_config: configs/teacher_walk_preview_gru_random_slopes_shifted_hard_heldout.yaml
+  terrains:
+    - random_slope_old
+    - random_slope_shift
+    - random_slope_shift_hard_heldout
+  metrics: [fall_rate, avg_distance, avg_forward_velocity, avg_return, weak_success_rate, strict_success_rate]
+
+wandb:
+  enabled: false
+  project: quadruped-student
+  entity: null
+  run_name: student-residual-bilinear-imu-clean
+  group: student-residual-bilinear
+  tags: [student, residual-bilinear, bc, depth, gru, imu-clean, random-slopes]
+  mode: online

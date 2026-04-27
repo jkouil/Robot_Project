@@ -1,0 +1,124 @@
+env:
+  model_path: models/pupper_like_preview_terrain.xml
+  control_dt: 0.02
+  episode_length_s: 28.0
+  action_scale: 0.25
+  reset_noise_scale: 0.018
+  command_min: 0.08
+  command_max: 0.18
+  command_yaw_min: 0.0
+  command_yaw_max: 0.0
+  healthy_z_min: 0.09
+  healthy_torso_up_min: 0.45
+  corridor_half_width: 0.27
+  use_privileged_terrain: true
+  scandot_layout: footstep_oriented
+  scandot_min_forward_offset: 0.18
+  observation_mode: teacher_dict
+  include_privileged_obs: true
+  observation_noise_std: 0.006
+  terrain_generation:
+    stairs_x_start: 0.46
+    stairs_half_length: 0.09
+    stairs_stride: 0.18
+    stairs_half_width: 0.255
+    stairs_min_half_height: 0.004
+    stairs_height_base: 0.012
+    stairs_height_scale: 0.014
+    stairs_warmup_progression: [0.50, 0.70]
+  privileged_randomization:
+    body_mass_range: [0.98, 1.02]
+    friction_range: [0.97, 1.03]
+    joint_damping_range: [0.98, 1.02]
+  curriculum:
+    enabled: true
+    initial_level: 0
+    min_level: 0
+    max_level: 5
+    window: 18
+    promotion_threshold: 0.74
+    demotion_threshold: 0.24
+    success_distance: 1.2
+    failure_distance: 0.35
+    terrain_types: [rough_flat, stairs]
+  seed: 0
+  reward_weights:
+    survival: 1.0
+    command_tracking: 7.0
+    absolute_work: 0.00008
+    foot_jerk: 0.00004
+    foot_drag: 0.00006
+    collision: 0.55
+    contact_force_threshold: 1.0
+    collision_force_threshold: 0.8
+    fall: 2.5
+
+policy:
+  teacher_encoder_variant: paper
+  include_privileged: false
+  hidden_sizes: [256, 256]
+  proprio_hidden_dim: 128
+  scandot_hidden_dim: 128
+  command_hidden_dim: 32
+  privileged_hidden_dim: 32
+  fused_dim: 256
+  lstm_hidden_size: 256
+  n_lstm_layers: 1
+  shared_lstm: false
+  enable_critic_lstm: true
+  init_log_std: -1.15
+  min_log_std: -2.2
+  max_log_std: -0.55
+
+train:
+  seed: 0
+  device: cuda
+  recurrent: true
+  recurrent_cell: gru
+  truncated_bptt_steps: 32
+  num_envs: 16
+  subproc_start_method: fork
+  learning_rate: 0.000075
+  total_updates: 5000
+  total_timesteps: 10000000
+  rollout_steps: 768
+  ppo_epochs: 6
+  minibatch_size: 512
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_coef: 0.18
+  value_coef: 0.6
+  entropy_coef: 0.002
+  max_grad_norm: 0.45
+  target_kl: 0.02
+  normalize_obs_keys: [proprio, scandots, command, privileged]
+  checkpoint_interval: 12
+  output_dir: artifacts/teacher_walk_preview_gru_paper_stairs_footstep_longrun_bptt32
+
+eval:
+  eval_interval_timesteps: 196608
+  eval_episodes: 6
+  weak_success_distance_m: 0.45
+  success_distance_m: 1.2
+  min_avg_forward_velocity: 0.06
+  record_best_video: true
+  record_recent_video: true
+  highlight_preview_terrain: true
+  render_scandots: true
+  showcase_success_metric: weak
+  showcase_terrain_type: stairs
+  showcase_max_level: 5
+  showcase_stop_on_failure: false
+  video_fps: 24
+  video_width: 512
+  video_height: 384
+  video_camera: tracking
+
+wandb:
+  enabled: true
+  project: quadruped-teacher
+  entity: null
+  run_name: teacher-preview-gru-paper-stairs-footstep-longrun-bptt32
+  group: preview-gru-paper-stairs-footstep-bptt32
+  tags: [teacher, recurrent, gru, bptt32, curriculum, scandots, footstep-scandots, stairs]
+  mode: online

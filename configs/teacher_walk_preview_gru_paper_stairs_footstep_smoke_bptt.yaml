@@ -1,0 +1,117 @@
+env:
+  model_path: models/pupper_like_preview_terrain.xml
+  control_dt: 0.02
+  episode_length_s: 6.0
+  action_scale: 0.25
+  reset_noise_scale: 0.0
+  command_min: 0.10
+  command_max: 0.12
+  command_yaw_min: 0.0
+  command_yaw_max: 0.0
+  healthy_z_min: 0.09
+  healthy_torso_up_min: 0.45
+  corridor_half_width: 0.27
+  use_privileged_terrain: true
+  scandot_layout: footstep_oriented
+  observation_mode: teacher_dict
+  include_privileged_obs: true
+  observation_noise_std: 0.0
+  terrain_generation:
+    stairs_x_start: 0.46
+    stairs_half_length: 0.09
+    stairs_stride: 0.18
+    stairs_half_width: 0.255
+    stairs_min_half_height: 0.004
+    stairs_height_base: 0.012
+    stairs_height_scale: 0.014
+    stairs_warmup_progression: [0.50, 0.70]
+  privileged_randomization:
+    body_mass_range: [1.0, 1.0]
+    friction_range: [1.0, 1.0]
+    joint_damping_range: [1.0, 1.0]
+  curriculum:
+    enabled: true
+    initial_level: 3
+    min_level: 0
+    max_level: 5
+    window: 4
+    promotion_threshold: 1.0
+    demotion_threshold: 0.0
+    success_distance: 0.6
+    failure_distance: 0.1
+    terrain_types: [stairs]
+  seed: 7
+  reward_weights:
+    survival: 1.0
+    command_tracking: 7.0
+    absolute_work: 0.00008
+    foot_jerk: 0.00004
+    foot_drag: 0.00006
+    collision: 0.55
+    contact_force_threshold: 1.0
+    collision_force_threshold: 0.8
+    fall: 2.5
+
+policy:
+  teacher_encoder_variant: paper
+  include_privileged: false
+  hidden_sizes: [128, 128]
+  proprio_hidden_dim: 128
+  scandot_hidden_dim: 128
+  command_hidden_dim: 32
+  privileged_hidden_dim: 32
+  fused_dim: 256
+  lstm_hidden_size: 128
+  n_lstm_layers: 1
+  init_log_std: -1.15
+  min_log_std: -2.2
+  max_log_std: -0.55
+
+train:
+  seed: 7
+  device: cpu
+  recurrent: true
+  recurrent_cell: gru
+  truncated_bptt_steps: 16
+  num_envs: 2
+  learning_rate: 0.0001
+  total_updates: 1
+  total_timesteps: 128
+  rollout_steps: 64
+  ppo_epochs: 1
+  minibatch_size: 64
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_coef: 0.18
+  value_coef: 0.6
+  entropy_coef: 0.002
+  max_grad_norm: 0.45
+  target_kl: 0.02
+  normalize_obs_keys: [proprio, scandots, command, privileged]
+  checkpoint_interval: 1
+  output_dir: artifacts/footstep_scandots_smoke_bptt
+
+eval:
+  eval_interval_timesteps: 128
+  eval_episodes: 1
+  weak_success_distance_m: 0.10
+  success_distance_m: 0.30
+  min_avg_forward_velocity: 0.02
+  record_best_video: true
+  record_recent_video: true
+  highlight_preview_terrain: true
+  render_scandots: true
+  showcase_terrain_type: stairs
+  video_fps: 24
+  video_width: 512
+  video_height: 384
+  video_camera: tracking
+
+wandb:
+  enabled: false
+  project: quadruped-teacher
+  entity: null
+  run_name: footstep-scandots-smoke-bptt
+  group: smoke
+  tags: [smoke, footstep-scandots, stairs]
+  mode: offline

@@ -1,0 +1,245 @@
+<mujoco model="pupper_like_preview_terrain">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" gravity="0 0 -9.81" iterations="50" solver="Newton"/>
+  <visual>
+    <headlight ambient="0.4 0.4 0.4" diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+  </visual>
+
+  <default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" group="2" rgba="0.25 0.25 0.25 1"/>
+    </default>
+    <default class="collision">
+      <geom group="3" friction="1.2 0.02 0.01" solimp="0.9 0.95 0.001" solref="0.004 1"/>
+    </default>
+    <joint damping="1.5" armature="0.01" frictionloss="0.02"/>
+    <position kp="35" ctrllimited="true" ctrlrange="-1.6 1.6"/>
+    <geom type="capsule" rgba="0.18 0.18 0.18 1" size="0.012"/>
+  </default>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.75 0.85 0.95" rgb2="0.98 0.99 1" width="256" height="256"/>
+    <texture name="ground_tex" type="2d" builtin="checker" rgb1="0.18 0.22 0.18" rgb2="0.22 0.26 0.22" width="256" height="256"/>
+    <material name="ground_mat" texture="ground_tex" texrepeat="6 6" reflectance="0.05"/>
+    <material name="terrain_mat" rgba="0.36 0.31 0.22 1"/>
+    <material name="wall_mat" rgba="0.92 0.96 1.00 0.0"/>
+    <material name="body_mat" rgba="0.12 0.12 0.14 1"/>
+    <material name="leg_mat" rgba="0.28 0.28 0.30 1"/>
+    <material name="foot_mat" rgba="0.10 0.10 0.10 1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 2.5" dir="0 0 -1"/>
+    <geom name="ground" type="plane" size="8 4 0.1" material="ground_mat" friction="1.4 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <camera name="overview_camera" pos="-2.8 -1.8 1.2" xyaxes="0.95 -0.3 0 0.1 0.3 0.95" fovy="55"/>
+
+    <!-- Constrain the robot to a forward corridor so it cannot cheat by
+         going around the preview terrain from the side. -->
+    <geom name="wall_left" type="box" pos="2.2 0.30 0.08" size="2.5 0.02 0.08" material="wall_mat" rgba="0.92 0.96 1.00 0.0" friction="0.8 0.01 0.01"/>
+    <geom name="wall_right" type="box" pos="2.2 -0.30 0.08" size="2.5 0.02 0.08" material="wall_mat" rgba="0.92 0.96 1.00 0.0" friction="0.8 0.01 0.01"/>
+    <geom name="wall_left_outline" type="box" pos="2.2 0.30 0.08" size="2.5 0.0009 0.08" contype="0" conaffinity="0" rgba="0.82 0.88 0.96 0.32"/>
+    <geom name="wall_right_outline" type="box" pos="2.2 -0.30 0.08" size="2.5 0.0009 0.08" contype="0" conaffinity="0" rgba="0.82 0.88 0.96 0.32"/>
+
+    <!-- Flat runway first, then a sequence of low full-width steps/bumps.
+         This is intentionally simple: the terrain is easy to load, still
+         requires preview, and is suitable for future vision+IMU ablations. -->
+    <geom name="bump_01" type="box" pos="0.55 0 0.012" size="0.09 0.26 0.012" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_02" type="box" pos="0.88 0 0.020" size="0.08 0.26 0.020" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_03" type="box" pos="1.18 0 0.016" size="0.07 0.26 0.016" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_04" type="box" pos="1.50 0 0.028" size="0.09 0.26 0.028" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_05" type="box" pos="1.85 0 0.022" size="0.08 0.26 0.022" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_06" type="box" pos="2.16 0 0.034" size="0.10 0.26 0.034" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_07" type="box" pos="2.52 0 0.018" size="0.07 0.26 0.018" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_08" type="box" pos="2.84 0 0.026" size="0.08 0.26 0.026" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_09" type="box" pos="3.16 0 0.030" size="0.09 0.26 0.030" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_10" type="box" pos="3.52 0 0.020" size="0.10 0.26 0.020" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_11" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_12" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_13" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_14" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_15" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_16" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_17" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_18" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_19" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_20" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_21" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_22" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_23" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_24" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_25" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_26" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_27" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_28" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_29" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_30" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_31" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_32" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_33" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_34" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_35" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_36" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_37" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_38" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_39" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    <geom name="bump_40" type="box" pos="8.0 0 -0.25" size="0.02 0.02 0.01" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+
+    <!-- Dedicated physical geoms for precision stepping stones.
+         These are attached to mocap bodies so their positions can change at
+         runtime while keeping MuJoCo collision geometry valid. -->
+    <body name="precision_platform_body" mocap="true" pos="8.0 0 -1.0">
+      <geom name="precision_platform_geom" type="box" pos="0 0 0" size="0.26 0.24 0.10" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/>
+    </body>
+    <body name="precision_stone_01_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_01_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_02_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_02_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_03_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_03_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_04_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_04_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_05_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_05_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_06_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_06_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_07_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_07_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_08_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_08_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_09_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_09_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_10_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_10_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_11_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_11_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_12_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_12_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_13_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_13_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_14_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_14_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_15_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_15_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_16_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_16_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_17_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_17_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_18_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_18_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_19_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_19_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_20_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_20_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_21_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_21_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_22_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_22_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_23_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_23_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="precision_stone_24_body" mocap="true" pos="8.0 0 -1.0"><geom name="precision_stone_24_geom" type="cylinder" pos="0 0 0" size="0.09 0.10 0" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_01_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_01_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_02_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_02_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_03_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_03_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_04_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_04_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_05_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_05_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_06_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_06_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_07_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_07_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_08_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_08_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_09_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_09_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_10_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_10_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_11_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_11_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+    <body name="stair_step_12_body" mocap="true" pos="8.0 0 -1.0"><geom name="stair_step_12_geom" type="box" pos="0 0 0" size="0.12 0.255 0.02" material="terrain_mat" friction="1.5 0.03 0.01" solimp="0.92 0.98 0.001" solref="0.006 1"/></body>
+
+    <body name="torso" pos="0 0 0.22">
+      <freejoint/>
+      <inertial pos="0 0 0" mass="1.2" diaginertia="0.010 0.024 0.026"/>
+      <geom name="torso_geom" type="box" size="0.12 0.055 0.025" material="body_mat"/>
+      <site name="imu_site" pos="0 0 0.02" size="0.008" rgba="0 1 0 1"/>
+      <site name="front_camera_site" pos="0.13 0 0.015" size="0.008" rgba="1 0 0 1"/>
+      <camera name="front_camera" pos="0.13 0 0.015" quat="0.7071068 0 -0.7071068 0" fovy="75"/>
+
+      <body name="fl_abad_link" pos="0.095 0.055 0">
+        <joint name="fl_abduction" type="hinge" axis="1 0 0" range="-0.7 0.7"/>
+        <inertial pos="0 0 -0.01" mass="0.08" diaginertia="0.00015 0.00015 0.00008"/>
+        <geom class="visual" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <geom class="collision" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <body name="fl_thigh" pos="0 0 0">
+          <joint name="fl_hip" type="hinge" axis="0 1 0" range="-1.8 1.3"/>
+          <inertial pos="0 0 -0.05" mass="0.18" diaginertia="0.0012 0.0012 0.0002"/>
+          <geom fromto="0 0 0 0 0 -0.10" size="0.012" material="leg_mat"/>
+          <body name="fl_shank" pos="0 0 -0.10">
+            <joint name="fl_knee" type="hinge" axis="0 1 0" range="-2.2 0.0"/>
+            <inertial pos="0 0 -0.055" mass="0.12" diaginertia="0.0007 0.0007 0.00012"/>
+            <geom fromto="0 0 0 0 0 -0.11" size="0.010" material="leg_mat"/>
+            <body name="fl_foot" pos="0 0 -0.11">
+              <geom name="fl_foot_geom" type="sphere" size="0.018" material="foot_mat" friction="1.6 0.03 0.01"/>
+              <site name="fl_foot_site" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <body name="fr_abad_link" pos="0.095 -0.055 0">
+        <joint name="fr_abduction" type="hinge" axis="1 0 0" range="-0.7 0.7"/>
+        <inertial pos="0 0 -0.01" mass="0.08" diaginertia="0.00015 0.00015 0.00008"/>
+        <geom class="visual" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <geom class="collision" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <body name="fr_thigh" pos="0 0 0">
+          <joint name="fr_hip" type="hinge" axis="0 1 0" range="-1.8 1.3"/>
+          <inertial pos="0 0 -0.05" mass="0.18" diaginertia="0.0012 0.0012 0.0002"/>
+          <geom fromto="0 0 0 0 0 -0.10" size="0.012" material="leg_mat"/>
+          <body name="fr_shank" pos="0 0 -0.10">
+            <joint name="fr_knee" type="hinge" axis="0 1 0" range="-2.2 0.0"/>
+            <inertial pos="0 0 -0.055" mass="0.12" diaginertia="0.0007 0.0007 0.00012"/>
+            <geom fromto="0 0 0 0 0 -0.11" size="0.010" material="leg_mat"/>
+            <body name="fr_foot" pos="0 0 -0.11">
+              <geom name="fr_foot_geom" type="sphere" size="0.018" material="foot_mat" friction="1.6 0.03 0.01"/>
+              <site name="fr_foot_site" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <body name="rl_abad_link" pos="-0.095 0.055 0">
+        <joint name="rl_abduction" type="hinge" axis="1 0 0" range="-0.7 0.7"/>
+        <inertial pos="0 0 -0.01" mass="0.08" diaginertia="0.00015 0.00015 0.00008"/>
+        <geom class="visual" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <geom class="collision" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <body name="rl_thigh" pos="0 0 0">
+          <joint name="rl_hip" type="hinge" axis="0 1 0" range="-1.8 1.3"/>
+          <inertial pos="0 0 -0.05" mass="0.18" diaginertia="0.0012 0.0012 0.0002"/>
+          <geom fromto="0 0 0 0 0 -0.10" size="0.012" material="leg_mat"/>
+          <body name="rl_shank" pos="0 0 -0.10">
+            <joint name="rl_knee" type="hinge" axis="0 1 0" range="-2.2 0.0"/>
+            <inertial pos="0 0 -0.055" mass="0.12" diaginertia="0.0007 0.0007 0.00012"/>
+            <geom fromto="0 0 0 0 0 -0.11" size="0.010" material="leg_mat"/>
+            <body name="rl_foot" pos="0 0 -0.11">
+              <geom name="rl_foot_geom" type="sphere" size="0.018" material="foot_mat" friction="1.6 0.03 0.01"/>
+              <site name="rl_foot_site" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+          </body>
+        </body>
+      </body>
+
+      <body name="rr_abad_link" pos="-0.095 -0.055 0">
+        <joint name="rr_abduction" type="hinge" axis="1 0 0" range="-0.7 0.7"/>
+        <inertial pos="0 0 -0.01" mass="0.08" diaginertia="0.00015 0.00015 0.00008"/>
+        <geom class="visual" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <geom class="collision" type="sphere" size="0.015" pos="0 0 0" material="leg_mat"/>
+        <body name="rr_thigh" pos="0 0 0">
+          <joint name="rr_hip" type="hinge" axis="0 1 0" range="-1.8 1.3"/>
+          <inertial pos="0 0 -0.05" mass="0.18" diaginertia="0.0012 0.0012 0.0002"/>
+          <geom fromto="0 0 0 0 0 -0.10" size="0.012" material="leg_mat"/>
+          <body name="rr_shank" pos="0 0 -0.10">
+            <joint name="rr_knee" type="hinge" axis="0 1 0" range="-2.2 0.0"/>
+            <inertial pos="0 0 -0.055" mass="0.12" diaginertia="0.0007 0.0007 0.00012"/>
+            <geom fromto="0 0 0 0 0 -0.11" size="0.010" material="leg_mat"/>
+            <body name="rr_foot" pos="0 0 -0.11">
+              <geom name="rr_foot_geom" type="sphere" size="0.018" material="foot_mat" friction="1.6 0.03 0.01"/>
+              <site name="rr_foot_site" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="fl_abduction_act" joint="fl_abduction"/>
+    <position name="fl_hip_act" joint="fl_hip"/>
+    <position name="fl_knee_act" joint="fl_knee"/>
+    <position name="fr_abduction_act" joint="fr_abduction"/>
+    <position name="fr_hip_act" joint="fr_hip"/>
+    <position name="fr_knee_act" joint="fr_knee"/>
+    <position name="rl_abduction_act" joint="rl_abduction"/>
+    <position name="rl_hip_act" joint="rl_hip"/>
+    <position name="rl_knee_act" joint="rl_knee"/>
+    <position name="rr_abduction_act" joint="rr_abduction"/>
+    <position name="rr_hip_act" joint="rr_hip"/>
+    <position name="rr_knee_act" joint="rr_knee"/>
+  </actuator>
+
+  <sensor>
+    <framequat name="imu_quat" objtype="site" objname="imu_site"/>
+    <gyro name="imu_gyro" site="imu_site"/>
+    <accelerometer name="imu_accel" site="imu_site"/>
+  </sensor>
+</mujoco>

@@ -1,0 +1,26 @@
+env:
+  env_id: Ant-v4
+
+policy:
+  hidden_sizes: [256, 256]
+
+train:
+  seed: 0
+  device: cpu
+  learning_rate: 0.0003
+  total_updates: 2000
+  rollout_steps: 4096
+  ppo_epochs: 10
+  minibatch_size: 256
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_coef: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.0
+  max_grad_norm: 0.5
+  output_dir: artifacts/ant_success
+
+eval:
+  success_distance: 10.0
+  eval_interval_updates: 10
+  eval_episodes: 10

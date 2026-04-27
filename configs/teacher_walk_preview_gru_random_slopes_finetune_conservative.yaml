@@ -1,0 +1,173 @@
+env:
+  model_path: models/pupper_like_preview_terrain.xml
+  control_dt: 0.02
+  episode_length_s: 24.0
+  action_scale: 0.29
+  reset_noise_scale: 0.0
+  command_min: 0.08
+  command_max: 0.18
+  command_yaw_min: 0.0
+  command_yaw_max: 0.0
+  healthy_z_min: 0.09
+  healthy_torso_up_min: 0.45
+  corridor_half_width: 0.27
+  use_privileged_terrain: true
+  terrain_obs_mode: stable_world_patch
+  terrain_obs_height_reference: center_height
+  terrain_patch_rows: 4
+  terrain_patch_cols: 5
+  terrain_patch_dx: 0.20
+  terrain_patch_dy: 0.10
+  terrain_patch_center_offset_x: 0.52
+  terrain_patch_center_offset_y: 0.0
+  scandot_layout: stable_world_patch
+  scandot_min_forward_offset: 0.18
+  observation_mode: teacher_dict
+  include_privileged_obs: true
+  observation_noise_std: 0.0
+  terrain_scan_origin_z: 0.35
+  terrain_scan_max_dist: 1.2
+  terrain_generation:
+    random_slope_x_start: 0.52
+    random_slope_half_width: 0.255
+    random_slope_thickness: 0.035
+    random_slope_overlap: 0.015
+    random_slope_min_angle_deg: 6.0
+    random_slope_max_angle_deg: 12.0
+    random_slope_initial_uphill_run_min: 1.35
+    random_slope_initial_uphill_run_max: 1.65
+    random_slope_initial_segments: 3
+    random_slope_initial_angle_factors: [0.55, 0.80, 1.0]
+    random_slope_segment_run_min: 0.35
+    random_slope_segment_run_max: 0.55
+    random_slope_turn_probability: 0.65
+    random_slope_same_direction_probability: 0.30
+    random_slope_max_angle_delta_deg: 3.5
+    random_slope_min_top_height: 0.0
+    random_slope_max_top_height: 0.42
+  privileged_randomization:
+    body_mass_range: [1.0, 1.0]
+    friction_range: [1.0, 1.0]
+    joint_damping_range: [1.0, 1.0]
+  curriculum:
+    enabled: true
+    initial_level: 0
+    min_level: 0
+    max_level: 5
+    window: 16
+    promotion_threshold: 0.72
+    demotion_threshold: 0.28
+    success_distance: 1.2
+    failure_distance: 0.35
+    success_x_fraction: 0.9
+    terrain_types: [random_slope_up_down]
+  seed: 0
+  reward_weights:
+    survival: 1.0
+    command_tracking: 7.0
+    absolute_work: 0.0001
+    foot_jerk: 0.00005
+    foot_drag: 0.00005
+    collision: 0.35
+    contact_force_threshold: 1.0
+    collision_force_threshold: 1.0
+    stuck: 0.4
+    stuck_progress_threshold: 0.05
+    stuck_patience_s: 2.0
+    stuck_ramp_s: 3.0
+    multi_air_penalty: 0.12
+    multi_air_max_feet: 1
+    avg_speed_penalty: 4.0
+    target_avg_forward_velocity: 0.08
+    min_speed_penalty: 6.0
+    min_forward_velocity: 0.05
+    fall: 20.0
+
+policy:
+  teacher_encoder_variant: paper
+  include_privileged: false
+  hidden_sizes: [256, 256]
+  proprio_hidden_dim: 128
+  scandot_hidden_dim: 128
+  command_hidden_dim: 32
+  privileged_hidden_dim: 32
+  fused_dim: 256
+  lstm_hidden_size: 256
+  n_lstm_layers: 1
+  shared_lstm: false
+  enable_critic_lstm: true
+  init_log_std: -1.3
+  min_log_std: -2.0
+  max_log_std: -0.8
+
+train:
+  seed: 0
+  device: cuda
+  recurrent: true
+  recurrent_cell: gru
+  truncated_bptt_steps: 24
+  num_envs: 16
+  subproc_start_method: fork
+  learning_rate: 0.00005
+  total_updates: 800
+  total_timesteps: 6553600
+  rollout_steps: 512
+  ppo_epochs: 3
+  minibatch_size: 512
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_coef: 0.1
+  value_coef: 0.5
+  entropy_coef: 0.012
+  max_grad_norm: 0.35
+  target_kl: 0.015
+  normalize_observations: true
+  normalize_rewards: false
+  clip_observations: 10.0
+  normalize_obs_keys: [proprio, scandots, command, privileged]
+  checkpoint_interval: 25
+  output_dir: artifacts/teacher_walk_preview_gru_random_slopes_finetune_conservative
+  finetune_model_path: artifacts/teacher_walk_preview_gru_random_slopes/best_teacher.zip
+  finetune_vecnormalize_path: artifacts/teacher_walk_preview_gru_random_slopes/best_teacher_vecnormalize.pkl
+
+eval:
+  egl_device_id: 0
+  eval_interval_timesteps: 52428
+  eval_episodes: 8
+  best_metric_mode: fall_rate_then_distance
+  best_fall_rate_epsilon: 0.000000001
+  candidate_eval_trigger_fall_rate_below: 1.0
+  candidate_eval_additional_episodes: 12
+  candidate_eval_episodes: 20
+  early_stop_no_improvement_evals: 30
+  early_stop_min_distance_delta: 0.02
+  early_stop_require_no_fall: false
+  weak_success_distance_m: 0.45
+  success_distance_m: 1.2
+  min_avg_forward_velocity: 0.06
+  success_x_fraction: 0.9
+  record_best_video: true
+  record_recent_video: true
+  record_curriculum_showcase: false
+  record_pretrain_scene_showcase: true
+  video_overlay_metrics: true
+  highlight_preview_terrain: false
+  render_scandots: true
+  render_stair_edges: true
+  showcase_success_metric: weak
+  showcase_terrain_type: random_slope_up_down
+  showcase_max_level: 5
+  showcase_stop_on_failure: false
+  video_fps: 24
+  video_width: 512
+  video_height: 384
+  video_camera: tracking
+
+wandb:
+  enabled: true
+  project: quadruped-teacher
+  entity: null
+  run_name: teacher-preview-gru-random-slopes-finetune-conservative
+  group: preview-gru-random-slopes-finetune-conservative
+  tags: [teacher, recurrent, gru, curriculum, scandots, random-slopes, bptt24, finetune, conservative-ppo, early-stop]
+  mode: online
