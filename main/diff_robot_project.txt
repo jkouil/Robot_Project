@@ -1,0 +1,1 @@
+This project was implemented from scratch with no provided starter code, so there is no meaningful code diff against an initial repository.
